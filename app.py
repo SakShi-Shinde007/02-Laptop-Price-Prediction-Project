@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import pickle
 
-st.title("Laptop Price Prediction")
+st.title("Laptop Price Prediction App")
 
 pipe = pickle.load(open("pipe.pkl", "rb"))
 df = pd.read_csv("Cleaned_data.csv")
@@ -20,12 +20,12 @@ processor_speed = st.sidebar.number_input(
 )
 
 ram = st.sidebar.selectbox(
-    "RAM Size (GB)",
+    "Select RAM Size (GB)",
     sorted(df["RAM_Size"].unique())
 )
 
 storage = st.sidebar.selectbox(
-    "Storage Capacity (GB)",
+    "Select Storage Capacity (GB)",
     sorted(df["Storage_Capacity"].unique())
 )
 
@@ -47,21 +47,37 @@ weight = st.sidebar.number_input(
 
 if st.sidebar.button("Predict Price"):
 
-    myinput = pd.DataFrame(
-        [[brand, processor_speed, ram, storage, screen, weight]],
-        columns=[
-            "Brand",
-            "Processor_Speed",
-            "RAM_Size",
-            "Storage_Capacity",
-            "Screen_Size",
-            "Weight"
-        ]
-    )
+    st.write("### You have selected:")
+    st.write(f"**Brand:** {brand}")
+    st.write(f"**Processor Speed:** {processor_speed} GHz")
+    st.write(f"**RAM:** {ram} GB")
+    st.write(f"**Storage:** {storage} GB")
+    st.write(f"**Screen Size:** {screen} inches")
+    st.write(f"**Weight:** {weight} kg")
+
+    myinput = [[
+        brand,
+        processor_speed,
+        ram,
+        storage,
+        screen,
+        weight
+    ]]
+
+    columns = [
+        "Brand",
+        "Processor_Speed",
+        "RAM_Size",
+        "Storage_Capacity",
+        "Screen_Size",
+        "Weight"
+    ]
+
+    myinput = pd.DataFrame(data=myinput, columns=columns)
 
     result = pipe.predict(myinput)
 
     if result[0] < 0:
-        st.error("Predicted price is negative. Please check your input.")
+        st.error("Sorry, the predicted price is negative. Please check your input values.")
     else:
-        st.success(f"Predicted Laptop Price: ₹{round(result[0],2)}")
+        st.success(f"Predicted Laptop Price: ₹{round(result[0], 2)}")
